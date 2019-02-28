@@ -34,18 +34,19 @@ def SearchToDict (path_input, search_for, search_for_attribute, search_output1, 
 def DictToCSV(output_main):
     dict = {}
     dict = output_main
-    with open('dict.csv', 'w') as csv_file:
-        writer = csv.writer(csv_file)
-        writer.writerow(dict.items())
+    with open('dict.csv', 'w', newline='') as csv_file:
+        writer = csv.writer(csv_file, delimiter=';',)
+        for line in dict.values():
+            writer.writerow(line)
 
 
 def main():
     output_main = {}
-    path_input = input('Укажите путь к загружаемому файлу:  ')
-    search_for = input ('Укажите что вы ищете (например - "DTP_V"):  ')
-    search_for_attribute = input('Введите с какими значениями нужно найти объект  ')
-    search_output1 = input('Введите первый атрибут данного объекта который вывести в файл  ')
-    search_output2 = input('Введите второй атрибут данного объекта который вывести в файл  ')
+    path_input = 'chuck.json'#input('Укажите путь к загружаемому файлу:  ')
+    search_for = 'DTP_V'#input ('Укажите что вы ищете (например - "DTP_V"):  ')
+    search_for_attribute = 'Наезд на препятствие'#input('Введите с какими значениями нужно найти объект  ')
+    search_output1 = 'District'#input('Введите первый атрибут данного объекта который вывести в файл  ')
+    search_output2 = 'Time'#input('Введите второй атрибут данного объекта который вывести в файл  ')
     main_cards_dict = getJson(path_input)
     output_main = SearchToDict(path_input, search_for, search_for_attribute, search_output1, search_output2, main_cards_dict)
     DictToCSV(output_main)
