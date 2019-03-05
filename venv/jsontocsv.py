@@ -2,6 +2,7 @@
 
 import json
 import csv
+from pprint import pprint
 
 #данная функция открывает json файл по территории, убирает первый общий уровень data и отдает json файл в формате списка словарей
 def getJson (path):
@@ -15,7 +16,11 @@ def getJson (path):
 def JsonToTable(path_input, main_cards_dict, label):
     output_list1 = [] #ключи
     output_list2 = [] #значения
+
     index = 0 #индекс который присваивает каждой карточке ДТП уникальный номер
+    #конструкция с 21 по 42 строку разворачивает каждое значение json файла в плоскую таблицу где каждая строка
+    #соответствует формату "значение атрибута" + атрибут поиска (например значение района) + уникальный индекс карточки ДТП
+    index1 = 0
     for dtp_dicts in main_cards_dict:
         index += 1
         for keys in dtp_dicts.keys():
@@ -26,16 +31,17 @@ def JsonToTable(path_input, main_cards_dict, label):
                             if ts_info_key == 'ts_uch':
                                 if dtp_dicts[keys][subkeys][0]['ts_uch']: #проверка на заполненность атрибута ts_uch. в некоторых карточках он пуст
                                     for ts_uch_key in list(dtp_dicts[keys][subkeys][0][ts_info_key][0].keys()):
-                                        output_list2.append(str(dtp_dicts[keys][subkeys][0][ts_info_key][0][ts_uch_key]) + ' ' + str(dtp_dicts[label])+ ' ' + str (index))
+                                        output_list2.append([dtp_dicts[keys][subkeys][0][ts_info_key][0][ts_uch_key], dtp_dicts[label], index])
                                         output_list1.append(str(keys) + ' ' + str(subkeys) + ' ' + str(ts_info_key) + ' ' + str(ts_uch_key))
                             else:
-                                output_list2.append(dtp_dicts[keys][subkeys][0][ts_info_key]+' ' + str(dtp_dicts[label])+ ' ' + str (index))
+                                output_list2.append([dtp_dicts[keys][subkeys][0][ts_info_key], dtp_dicts[label], index])
                                 output_list1.append(str(keys) + ' '+ str(subkeys) + ' ' + str(ts_info_key))
                     else:
-                        output_list2.append(str(dtp_dicts[keys][subkeys])+' '+ str(dtp_dicts[label])+ ' ' + str (index))
+                        output_list2.append([dtp_dicts[keys][subkeys], dtp_dicts[label], index])
                         output_list1.append(str(keys) + ' '+ str(subkeys))
             else:
-                output_list2.append(str(dtp_dicts[keys]) +' '+ str(dtp_dicts[label]) + ' ' + str (index))
+
+                output_list2. append([dtp_dicts[keys], dtp_dicts[label], index])
                 output_list1.append(keys)
     return output_list2
 
@@ -50,23 +56,38 @@ def DictToCSV(output_main):
 
 def SearchInList (SearchIt, SearchIt2, SearchIt3, SearchIt4, List):
     output_list = []
-    output_list2 = []
+    finish_list = []
 
-    res_list = []
+    for element in List: #преобразовываем значения атрибутов в формате списка в формат строки
+        ind = 0
+        for part in element:
+            if type(part) == list:
+                if part != []:
+                    buf = part[0]
+                    element[ind] = buf
+            ind += 1
+
     for element in List:
-        spl_element = element.split()[0]
+        spl_element = element[0]
         if (spl_element == SearchIt) or  (spl_element == SearchIt2) or (spl_element == SearchIt3) or (spl_element == SearchIt4):
             output_list.append(element)
 
+    output_list = sorted(output_list, key = lambda element: element[2]) #сгруппировали значения json по карточкам дтп, если нашлось четыре значения с одинаковым индексом значит это то что удовлетворяет поиску
+
+    count = 0
+
     for element in output_list:
-        spl_element = element.split()[-1]
         for element2 in output_list:
-            spl_element2 = element2.split()[-1]
-            if spl_element == spl_element2:
-                output_list2.append(element.split()[-2])
+            if element[2] == element2[2]:
+                count += 1
+                if count == 4:
+                    finish_list.append(element[1])
+                    count = 0
+            else:
+                count = 0
 
 
-    print (set(output_list2))
+    pprint (set(finish_list)) #
 
 
 def main():
