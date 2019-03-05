@@ -48,24 +48,25 @@ def DictToCSV(output_main):
         for line in dict.values():
             writer.writerow(line)
 
-def SearchInList (SearchIt, SearchIt2, List):
+def SearchInList (SearchIt, SearchIt2, SearchIt3, SearchIt4, List):
     output_list = []
     output_list2 = []
+
     res_list = []
     for element in List:
         spl_element = element.split()[0]
-        if SearchIt == spl_element:
-            output_list.append(element.split())
-    for element2 in List:
-        spl_element2 = element2.split()[0]
-        if SearchIt2 == spl_element2:
-            output_list2.append(element2.split())
+        if (spl_element == SearchIt) or  (spl_element == SearchIt2) or (spl_element == SearchIt3) or (spl_element == SearchIt4):
+            output_list.append(element)
 
-    for el in output_list:
-        for el2 in output_list2:
-            if el[-1] == el2[-1]:
-                res_list.append(el[1])
-    print (res_list)
+    for element in output_list:
+        spl_element = element.split()[-1]
+        for element2 in output_list:
+            spl_element2 = element2.split()[-1]
+            if spl_element == spl_element2:
+                output_list2.append(element.split()[-2])
+
+
+    print (set(output_list2))
 
 
 def main():
@@ -74,10 +75,12 @@ def main():
     in_label = input ('Укажите что Вы ищете ')
     search_for = input ('Укажите по какому параметру:  ')
     search_for2 = input('Укажите второй параметр:  ')
+    search_for3 = input('Укажите третий параметр:  ')
+    search_for4 = input('Укажите четвертый параметр:  ')
 
     main_cards_dict = getJson(path_input)
     output_main = JsonToTable(path_input, main_cards_dict, in_label)
-    SearchInList(search_for, search_for2, output_main)
+    SearchInList(search_for, search_for2, search_for3, search_for4, output_main)
 
 
 main()
